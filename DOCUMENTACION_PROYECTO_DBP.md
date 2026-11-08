@@ -191,6 +191,11 @@ npm run dev                          # Disponible en http://localhost:5173
 cd ReactNative
 npm install
 npx expo start                       # Abre interfaz de Expo para Android/iOS/Web
+
+ojo: En client.ts mofificar por la ip de tu dispositivo.
+
+const DEFAULT_HOST = process.env.EXPO_PUBLIC_API_HOST || '192.168.18.126';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || `http://${DEFAULT_HOST}:8080`;
 ```
 
 ---
