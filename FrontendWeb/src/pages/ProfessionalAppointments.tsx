@@ -6,6 +6,7 @@ import EmptyState from '../components/EmptyState';
 import ErrorMessage from '../components/ErrorMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Pagination from '../components/Pagination';
+import PatientContactModal from '../components/PatientContactModal';
 import StatusBadge from '../components/StatusBadge';
 import { useFetch } from '../hooks/useFetch';
 import { usePagination } from '../hooks/usePagination';
@@ -15,6 +16,7 @@ import type { AppointmentDTO } from '../types';
 export default function ProfessionalAppointmentsPage() {
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [selectedApt, setSelectedApt] = useState<AppointmentDTO | null>(null);
+  const [contactApt, setContactApt] = useState<AppointmentDTO | null>(null);
   const [actionType, setActionType] = useState<'accept' | 'reject' | 'complete' | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -137,15 +139,27 @@ export default function ProfessionalAppointmentsPage() {
                 className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm space-y-4 hover:border-gray-300 transition-colors"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setContactApt(apt)}
+                    className="flex items-center gap-3 text-left group focus:outline-none"
+                    title="Click para ver ficha y datos de contacto del paciente"
+                  >
+                    <div className="h-10 w-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold group-hover:bg-teal-600 group-hover:text-white transition-colors">
                       <FiUser className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Cita #{apt.id}</p>
-                      <p className="text-xs text-gray-500">Paciente #{apt.patientId}</p>
+                      <p className="font-semibold text-gray-900 group-hover:text-teal-600 transition-colors flex items-center gap-1.5">
+                        {apt.patientName || `Paciente #${apt.patientId}`}
+                        <span className="text-[10px] font-normal text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">
+                          Ver contacto
+                        </span>
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Cita #{apt.id} {apt.medicalServiceName ? `• ${apt.medicalServiceName}` : ''}
+                      </p>
                     </div>
-                  </div>
+                  </button>
                   <StatusBadge status={apt.status} />
                 </div>
 
@@ -244,6 +258,12 @@ export default function ProfessionalAppointmentsPage() {
           }}
         />
       )}
+
+      <PatientContactModal
+        open={!!contactApt}
+        appointment={contactApt}
+        onClose={() => setContactApt(null)}
+      />
     </div>
   );
 }

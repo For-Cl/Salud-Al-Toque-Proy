@@ -21,5 +21,15 @@ export const professionalService = {
     const response = await apiClient.get<ProfessionalDTO>(`/professionals/${id}`);
     return response.data;
   },
+
+  getMyProfile: async (): Promise<ProfessionalDTO> => {
+    const response = await apiClient.get<ProfessionalDTO>('/professionals/me');
+    return response.data;
+  },
+
+  updateMyProfile: async (data: { location?: string }): Promise<ProfessionalDTO> => {
+    const response = await apiClient.put<ProfessionalDTO>('/professionals/me', data);
+    return response.data;
+  },
 };
 

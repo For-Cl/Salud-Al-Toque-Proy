@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { userService } from '../services/userService';
 import type { UserDTO } from '../types';
 import { storage } from '../utils/storage';
 
@@ -8,77 +9,75 @@ interface AuthContextType {
   isAuthenticated: boolean;
   role: string | null;
   loading: boolean;
-  login: (token: string) => Promise<void>;
+  login: (token: string) => Promise<UserDTO>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-function parseJwt(token: string): UserDTO | null {
-  try {
-    const base64Url = token.split('.')[1];
-    if (!base64Url) return null;
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    // Using standard atob polyfill or decodeURIComponent
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    const decoded = JSON.parse(jsonPayload);
-    return {
-      id: decoded.userId ?? decoded.sub ?? 0,
-      name: decoded.name ?? '',
-      email: decoded.sub ?? decoded.email ?? '',
-      phone: decoded.phone ?? '',
-      role: decoded.role ?? 'PATIENT',
-    };
-  } catch {
-    return null;
-  }
-}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<UserDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore token from SecureStore on startup
+  // Restore token and cached user profile from SecureStore on startup
   useEffect(() => {
     let mounted = true;
-    async function loadToken() {
+    async function loadSession() {
       try {
         const savedToken = await storage.getToken();
+        const savedProfile = await storage.getProfile();
+
         if (savedToken && mounted) {
-          const parsed = parseJwt(savedToken);
-          if (parsed) {
-            setToken(savedToken);
-            setUser(parsed);
+          setToken(savedToken);
+          if (savedProfile) {
+            setUser(savedProfile);
           } else {
-            await storage.deleteToken();
+            // Resolve role from backend
+            const resolved = await userService.resolveProfile(savedToken);
+            if (mounted) {
+              setUser(resolved);
+              await storage.saveProfile(resolved);
+            }
           }
         }
       } catch {
-        // secure store unavailable or error
+        // SecureStore error fallback
       } finally {
         if (mounted) setLoading(false);
       }
     }
-    loadToken();
+    loadSession();
     return () => {
       mounted = false;
     };
   }, []);
 
-  const login = useCallback(async (newToken: string) => {
+  const login = useCallback(async (newToken: string): Promise<UserDTO> => {
     await storage.saveToken(newToken);
     setToken(newToken);
-    setUser(parseJwt(newToken));
+    try {
+      const resolved = await userService.resolveProfile(newToken);
+      setUser(resolved);
+      await storage.saveProfile(resolved);
+      return resolved;
+    } catch {
+      const fallback: UserDTO = {
+        id: 0,
+        name: 'Usuario',
+        email: '',
+        phone: '',
+        role: 'PATIENT',
+      };
+      setUser(fallback);
+      await storage.saveProfile(fallback);
+      return fallback;
+    }
   }, []);
 
   const logout = useCallback(async () => {
     await storage.deleteToken();
+    await storage.deleteProfile();
     setToken(null);
     setUser(null);
   }, []);
@@ -106,4 +105,3 @@ export function useAuth(): AuthContextType {
   }
   return context;
 }
-

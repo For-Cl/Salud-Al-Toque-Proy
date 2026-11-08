@@ -36,7 +36,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const { token } = await authService.signUp({ name, email, password, phone: phone || undefined });
-      login(token);
+      await login(token);
       toast.success('¡Cuenta creada exitosamente!');
       navigate('/dashboard');
     } catch (err: any) {

@@ -21,5 +21,25 @@ export const professionalService = {
     const response = await apiClient.get<ProfessionalDTO>(`/professionals/${id}`, { signal });
     return response.data;
   },
+
+  getMyProfile: async (signal?: AbortSignal): Promise<ProfessionalDTO> => {
+    const response = await apiClient.get<ProfessionalDTO>('/professionals/me', { signal });
+    return response.data;
+  },
+
+  updateMyProfile: async (data: { location?: string }): Promise<ProfessionalDTO> => {
+    const response = await apiClient.put<ProfessionalDTO>('/professionals/me', data);
+    return response.data;
+  },
+
+  createByAdmin: async (data: {
+    user: { id: number };
+    specialty: { id: number };
+    location: string;
+    rating?: number;
+  }): Promise<ProfessionalDTO> => {
+    const response = await apiClient.post<ProfessionalDTO>('/professionals', data);
+    return response.data;
+  },
 };
 

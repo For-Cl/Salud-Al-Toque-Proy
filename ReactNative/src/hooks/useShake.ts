@@ -5,10 +5,14 @@ import { useEffect, useRef } from 'react';
  * Custom hook to detect device shake gestures using the Accelerometer sensor.
  * Rubric 2.3 requirement: Integrates device hardware sensor with clear value.
  */
-export function useShake(onShake: () => void, threshold = 1.78) {
+export function useShake(onShake: () => void, threshold = 1.78, enabled = true) {
   const lastShakeRef = useRef<number>(0);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     Accelerometer.setUpdateInterval(100);
 
     const subscription = Accelerometer.addListener((accelerometerData) => {
@@ -29,6 +33,6 @@ export function useShake(onShake: () => void, threshold = 1.78) {
     return () => {
       subscription.remove();
     };
-  }, [onShake, threshold]);
+  }, [onShake, threshold, enabled]);
 }
 

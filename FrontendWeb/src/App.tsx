@@ -13,6 +13,9 @@ const ProfessionalListPage = lazy(() => import('./pages/ProfessionalList'));
 const ProfessionalDetailPage = lazy(() => import('./pages/ProfessionalDetail'));
 const MyAppointmentsPage = lazy(() => import('./pages/MyAppointments'));
 const ProfessionalAppointmentsPage = lazy(() => import('./pages/ProfessionalAppointments'));
+const ProfessionalSchedulePage = lazy(() => import('./pages/ProfessionalSchedule'));
+const ProfessionalServicesPage = lazy(() => import('./pages/ProfessionalServices'));
+const ProfilePage = lazy(() => import('./pages/Profile'));
 const MyFavoritesPage = lazy(() => import('./pages/MyFavorites'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
@@ -64,12 +67,38 @@ export default function App() {
                 }
               />
 
+              {/* Profile Route for all authenticated roles */}
+              <Route
+                path="profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+
               {/* Professional Only Routes */}
               <Route
                 path="professional/appointments"
                 element={
                   <ProtectedRoute roles={['PROFESSIONAL']}>
                     <ProfessionalAppointmentsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="professional/schedule"
+                element={
+                  <ProtectedRoute roles={['PROFESSIONAL']}>
+                    <ProfessionalSchedulePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="professional/services"
+                element={
+                  <ProtectedRoute roles={['PROFESSIONAL']}>
+                    <ProfessionalServicesPage />
                   </ProtectedRoute>
                 }
               />

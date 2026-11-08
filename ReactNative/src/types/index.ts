@@ -77,6 +77,13 @@ export interface AppointmentDTO {
   patientId: number;
   professionalId: number;
   medicalServiceId: number;
+  patientName?: string;
+  professionalName?: string;
+  medicalServiceName?: string;
+  patientEmail?: string;
+  patientPhone?: string;
+  patientAddress?: string;
+  patientDateOfBirth?: string;
 }
 
 export interface CreateAppointmentRequest {
@@ -93,6 +100,7 @@ export interface ReviewDTO {
   appointmentId: number;
   patientId: number;
   professionalId: number;
+  patientName?: string;
 }
 
 export interface CreateReviewRequest {

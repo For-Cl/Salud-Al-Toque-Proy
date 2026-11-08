@@ -37,8 +37,8 @@ export const RootNavigator = () => {
               options={{ headerShown: true, title: 'Crear Cuenta', headerBackTitle: 'Atrás' }}
             />
           </Stack.Group>
-        ) : role === 'PROFESSIONAL' ? (
-          // Professional App Stack
+        ) : role === 'PROFESSIONAL' || role === 'ADMIN' ? (
+          // Professional / Staff Stack
           <Stack.Group>
             <Stack.Screen name="ProfessionalMain" component={ProfessionalTabNavigator} />
           </Stack.Group>

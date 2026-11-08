@@ -1,24 +1,28 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import { userService } from '../services/userService';
 import type { AuthState, UserDTO } from '../types';
 
 interface AuthContextType extends AuthState {
-  login: (token: string) => void;
+  resolving: boolean;
+  login: (token: string) => Promise<UserDTO>;
   logout: () => void;
+  updateUser: (updated: Partial<UserDTO>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-function decodeToken(token: string): UserDTO | null {
+function loadSavedProfile(): UserDTO | null {
   try {
-    const payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(payload));
-    return {
-      id: decoded.userId ?? decoded.sub ?? 0,
-      name: decoded.name ?? '',
-      email: decoded.sub ?? decoded.email ?? '',
-      phone: decoded.phone ?? '',
-      role: decoded.role ?? 'PATIENT',
-    };
+    const raw = localStorage.getItem('user_profile');
+    return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
@@ -26,40 +30,81 @@ function decodeToken(token: string): UserDTO | null {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
-  const [user, setUser] = useState<UserDTO | null>(() => {
-    const saved = localStorage.getItem('token');
-    return saved ? decodeToken(saved) : null;
-  });
+  const [user, setUser] = useState<UserDTO | null>(() => loadSavedProfile());
+  const [resolving, setResolving] = useState(false);
 
-  const login = useCallback((newToken: string) => {
+  const login = useCallback(async (newToken: string): Promise<UserDTO> => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
-    setUser(decodeToken(newToken));
+    setResolving(true);
+    try {
+      const resolved = await userService.resolveProfile(newToken);
+      setUser(resolved);
+      localStorage.setItem('user_profile', JSON.stringify(resolved));
+      return resolved;
+    } catch {
+      const fallback: UserDTO = {
+        id: 0,
+        name: 'Usuario',
+        email: '',
+        phone: '',
+        role: 'PATIENT',
+      };
+      setUser(fallback);
+      return fallback;
+    } finally {
+      setResolving(false);
+    }
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user_profile');
     setToken(null);
     setUser(null);
   }, []);
 
-  useEffect(() => {
-    if (token) {
-      const decoded = decodeToken(token);
-      if (!decoded) {
-        logout();
-      }
-    }
-  }, [token, logout]);
+  const updateUser = useCallback((updated: Partial<UserDTO>) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      const next = { ...prev, ...updated };
+      localStorage.setItem('user_profile', JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
-  const value = useMemo<AuthContextType>(() => ({
-    token,
-    user,
-    isAuthenticated: !!token,
-    role: user?.role ?? null,
-    login,
-    logout,
-  }), [token, user, login, logout]);
+  // Sync / verify role on mount if token is present
+  useEffect(() => {
+    if (token && !user) {
+      setResolving(true);
+      userService
+        .resolveProfile(token)
+        .then((resolved) => {
+          setUser(resolved);
+          localStorage.setItem('user_profile', JSON.stringify(resolved));
+        })
+        .catch(() => {
+          logout();
+        })
+        .finally(() => {
+          setResolving(false);
+        });
+    }
+  }, [token, user, logout]);
+
+  const value = useMemo<AuthContextType>(
+    () => ({
+      token,
+      user,
+      isAuthenticated: !!token,
+      role: user?.role ?? null,
+      resolving,
+      login,
+      logout,
+      updateUser,
+    }),
+    [token, user, resolving, login, logout, updateUser]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -71,4 +116,3 @@ export function useAuth(): AuthContextType {
   }
   return context;
 }
-

@@ -8,16 +8,19 @@ import {
   Linking,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { useLocation } from '../../hooks/useLocation';
+import { storage } from '../../utils/storage';
 
 export const EmergencySensorScreen = () => {
   const { coords, address, loading: loadingLocation, requestLocation } = useLocation();
 
   // Accelerometer Sensor State
+  const [shakeEnabled, setShakeEnabled] = useState(true);
   const [accelData, setAccelData] = useState({ x: 0, y: 0, z: 0 });
   const [shakeCount, setShakeCount] = useState(0);
 
@@ -25,6 +28,17 @@ export const EmergencySensorScreen = () => {
   const [prescriptionImage, setPrescriptionImage] = useState<string | null>(null);
 
   useEffect(() => {
+    storage.getShakeEnabled().then((enabled) => {
+      setShakeEnabled(enabled);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!shakeEnabled) {
+      setAccelData({ x: 0, y: 0, z: 0 });
+      return;
+    }
+
     Accelerometer.setUpdateInterval(200);
     const sub = Accelerometer.addListener((data) => {
       setAccelData(data);
@@ -35,7 +49,12 @@ export const EmergencySensorScreen = () => {
     });
 
     return () => sub.remove();
-  }, []);
+  }, [shakeEnabled]);
+
+  const handleToggleShake = async (val: boolean) => {
+    setShakeEnabled(val);
+    await storage.saveShakeEnabled(val);
+  };
 
   const handleTakePhoto = async () => {
     try {
@@ -142,21 +161,53 @@ export const EmergencySensorScreen = () => {
             <Text style={styles.cardTitle}>Sensor 2: Acelerómetro (expo-sensors)</Text>
             <Text style={styles.cardSubtitle}>Detección de sacudida (Shake gesture)</Text>
           </View>
+          <Switch
+            value={shakeEnabled}
+            onValueChange={handleToggleShake}
+            trackColor={{ false: '#cbd5e1', true: '#0d9488' }}
+            thumbColor={shakeEnabled ? '#ffffff' : '#f8fafc'}
+          />
         </View>
 
-        <View style={styles.sensorBox}>
-          <Text style={styles.sensorRow}>
-            <Text style={styles.bold}>Eje X:</Text> {accelData.x.toFixed(2)} |{' '}
-            <Text style={styles.bold}>Eje Y:</Text> {accelData.y.toFixed(2)} |{' '}
-            <Text style={styles.bold}>Eje Z:</Text> {accelData.z.toFixed(2)}
-          </Text>
-          <Text style={styles.sensorRow}>
-            <Text style={styles.bold}>Sacudidas detectadas:</Text> {shakeCount}
-          </Text>
-          <Text style={styles.hintText}>
-            💡 Agita tu celular para activar el atajo de emergencia y refresco rápido.
+        <View style={styles.sensorStatusRow}>
+          <Ionicons
+            name={shakeEnabled ? 'checkmark-circle' : 'pause-circle'}
+            size={16}
+            color={shakeEnabled ? '#0d9488' : '#94a3b8'}
+          />
+          <Text
+            style={[
+              styles.sensorStatusText,
+              { color: shakeEnabled ? '#0f766e' : '#64748b' },
+            ]}
+          >
+            {shakeEnabled
+              ? 'Sensor activo — agita el celular para probar'
+              : 'Sensor en pausa — ahorro de batería activado'}
           </Text>
         </View>
+
+        {shakeEnabled ? (
+          <View style={styles.sensorBox}>
+            <Text style={styles.sensorRow}>
+              <Text style={styles.bold}>Eje X:</Text> {accelData.x.toFixed(2)} |{' '}
+              <Text style={styles.bold}>Eje Y:</Text> {accelData.y.toFixed(2)} |{' '}
+              <Text style={styles.bold}>Eje Z:</Text> {accelData.z.toFixed(2)}
+            </Text>
+            <Text style={styles.sensorRow}>
+              <Text style={styles.bold}>Sacudidas detectadas:</Text> {shakeCount}
+            </Text>
+            <Text style={styles.hintText}>
+              💡 Agita tu celular para activar el atajo de emergencia y refresco rápido.
+            </Text>
+          </View>
+        ) : (
+          <View style={[styles.sensorBox, { backgroundColor: '#f1f5f9', alignItems: 'center' }]}>
+            <Text style={[styles.hintText, { textAlign: 'center', color: '#64748b' }]}>
+              ⏸️ El gesto de sacudida está apagado. Puedes activarlo con el interruptor arriba cuando desees detección de emergencias por movimiento.
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Sensor 3: Camera / ImagePicker */}
@@ -282,6 +333,20 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#64748b',
     marginTop: 1,
+  },
+  sensorStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  sensorStatusText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   sensorBox: {
     backgroundColor: '#f8fafc',

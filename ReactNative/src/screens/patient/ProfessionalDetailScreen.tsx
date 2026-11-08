@@ -237,7 +237,9 @@ export const ProfessionalDetailScreen = ({ route, navigation }: any) => {
             reviews.map((rev) => (
               <View key={rev.id} style={styles.reviewCard}>
                 <View style={styles.reviewHeader}>
-                  <Text style={styles.reviewAuthor}>Paciente #{rev.patientId}</Text>
+                  <Text style={styles.reviewAuthor}>
+                    {rev.patientName || `Paciente #${rev.patientId}`}
+                  </Text>
                   <StarRating rating={rev.rating} size={14} showText={false} />
                 </View>
                 {rev.comment ? <Text style={styles.reviewComment}>{rev.comment}</Text> : null}

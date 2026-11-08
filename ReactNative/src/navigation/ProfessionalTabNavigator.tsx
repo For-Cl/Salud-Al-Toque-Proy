@@ -3,6 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { ProfessionalAppointmentsScreen } from '../screens/professional/ProfessionalAppointmentsScreen';
 import { ProfessionalDashboardScreen } from '../screens/professional/ProfessionalDashboardScreen';
+import { ProfessionalScheduleScreen } from '../screens/professional/ProfessionalScheduleScreen';
+import { ProfessionalServicesScreen } from '../screens/professional/ProfessionalServicesScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,6 +35,12 @@ export const ProfessionalTabNavigator = () => {
             iconName = focused ? 'grid' : 'grid-outline';
           } else if (route.name === 'DoctorAppointmentsTab') {
             iconName = focused ? 'calendar' : 'calendar-outline';
+          } else if (route.name === 'DoctorScheduleTab') {
+            iconName = focused ? 'time' : 'time-outline';
+          } else if (route.name === 'DoctorServicesTab') {
+            iconName = focused ? 'medkit' : 'medkit-outline';
+          } else if (route.name === 'DoctorProfileTab') {
+            iconName = focused ? 'person' : 'person-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -45,7 +54,22 @@ export const ProfessionalTabNavigator = () => {
       <Tab.Screen
         name="DoctorAppointmentsTab"
         component={ProfessionalAppointmentsScreen}
-        options={{ title: 'Gestión Citas', headerTitle: 'Citas de Pacientes' }}
+        options={{ title: 'Citas', headerTitle: 'Citas de Pacientes' }}
+      />
+      <Tab.Screen
+        name="DoctorScheduleTab"
+        component={ProfessionalScheduleScreen}
+        options={{ title: 'Horarios', headerTitle: 'Mis Horarios de Atención' }}
+      />
+      <Tab.Screen
+        name="DoctorServicesTab"
+        component={ProfessionalServicesScreen}
+        options={{ title: 'Servicios', headerTitle: 'Mis Servicios Médicos' }}
+      />
+      <Tab.Screen
+        name="DoctorProfileTab"
+        component={ProfileScreen}
+        options={{ title: 'Perfil', headerTitle: 'Mi Perfil' }}
       />
     </Tab.Navigator>
   );

@@ -128,8 +128,12 @@ export default function MyAppointmentsPage() {
                       <FiCalendar className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Cita #{apt.id}</p>
-                      <p className="text-xs text-gray-500">Servicio #{apt.medicalServiceId}</p>
+                      <p className="font-semibold text-gray-900">
+                        {apt.medicalServiceName || `Cita #${apt.id}`}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {apt.professionalName ? `Dr(a). ${apt.professionalName} • ` : ''}Cita #{apt.id}
+                      </p>
                     </div>
                   </div>
                   <StatusBadge status={apt.status} />

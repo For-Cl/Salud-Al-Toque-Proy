@@ -1,7 +1,13 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API_BASE_URL = 'http://localhost:8080';
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    skipErrorToast?: boolean;
+  }
+}
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -31,8 +37,12 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    if (error.config?.skipErrorToast) {
+      return Promise.reject(error);
+    }
+
     if (!error.response) {
-      toast.error('Error de conexión. Verifica tu red.');
+      toast.error('Error de conexión. Verifica que el backend esté en ejecución.');
       return Promise.reject(error);
     }
 
@@ -41,6 +51,7 @@ apiClient.interceptors.response.use(
     switch (status) {
       case 401:
         localStorage.removeItem('token');
+        localStorage.removeItem('user_profile');
         if (window.location.pathname !== '/login') {
           toast.error('Tu sesión ha expirado. Inicia sesión de nuevo.');
           window.location.href = '/login';
@@ -64,4 +75,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-

@@ -6,6 +6,7 @@ import { FavoritesScreen } from '../screens/patient/FavoritesScreen';
 import { HomeScreen } from '../screens/patient/HomeScreen';
 import { MyAppointmentsScreen } from '../screens/patient/MyAppointmentsScreen';
 import { ProfessionalsScreen } from '../screens/patient/ProfessionalsScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -41,6 +42,8 @@ export const PatientTabNavigator = () => {
             iconName = focused ? 'heart' : 'heart-outline';
           } else if (route.name === 'EmergencyTab') {
             iconName = focused ? 'hardware-chip' : 'hardware-chip-outline';
+          } else if (route.name === 'ProfileTab') {
+            iconName = focused ? 'person' : 'person-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -70,6 +73,11 @@ export const PatientTabNavigator = () => {
         name="EmergencyTab"
         component={EmergencySensorScreen}
         options={{ title: 'Sensores', headerTitle: 'Sensores de Salud' }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileScreen}
+        options={{ title: 'Mi Perfil', headerTitle: 'Mi Perfil' }}
       />
     </Tab.Navigator>
   );

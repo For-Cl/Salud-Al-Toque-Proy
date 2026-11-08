@@ -10,12 +10,14 @@ import {
 } from 'react-native';
 import { LoadingView } from '../../components/LoadingView';
 import { StatusBadge } from '../../components/StatusBadge';
+import PatientContactModal from '../../components/PatientContactModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFetch } from '../../hooks/useFetch';
 import { appointmentService } from '../../services/appointmentService';
 
 export const ProfessionalDashboardScreen = ({ navigation }: any) => {
   const { user, logout } = useAuth();
+  const [contactApt, setContactApt] = React.useState<any>(null);
 
   const {
     data: appointments,
@@ -93,11 +95,23 @@ export const ProfessionalDashboardScreen = ({ navigation }: any) => {
       <View style={styles.listContainer}>
         {appointments && appointments.length > 0 ? (
           appointments.slice(0, 6).map((apt) => (
-            <View key={apt.id} style={styles.aptCard}>
+            <TouchableOpacity
+              key={apt.id}
+              style={styles.aptCard}
+              onPress={() => setContactApt(apt)}
+              activeOpacity={0.7}
+            >
               <View style={styles.aptCardHeader}>
                 <View>
-                  <Text style={styles.aptCardTitle}>Cita #{apt.id}</Text>
-                  <Text style={styles.aptCardSub}>Paciente #{apt.patientId}</Text>
+                  <Text style={styles.aptCardTitle}>
+                    {apt.patientName || `Paciente #${apt.patientId}`}
+                  </Text>
+                  <Text style={styles.aptCardSub}>
+                    Cita #{apt.id} {apt.medicalServiceName ? `• ${apt.medicalServiceName}` : ''}
+                  </Text>
+                  <Text style={{ fontSize: 10, color: '#0d9488', fontWeight: '600', marginTop: 1 }}>
+                    Ver contacto ↗
+                  </Text>
                 </View>
                 <StatusBadge status={apt.status} />
               </View>
@@ -109,12 +123,18 @@ export const ProfessionalDashboardScreen = ({ navigation }: any) => {
                   S/ {apt.price ? apt.price.toFixed(2) : '—'}
                 </Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))
         ) : (
           <Text style={styles.emptyText}>No tienes citas registradas.</Text>
         )}
       </View>
+
+      <PatientContactModal
+        visible={!!contactApt}
+        appointment={contactApt}
+        onClose={() => setContactApt(null)}
+      />
     </ScrollView>
   );
 };

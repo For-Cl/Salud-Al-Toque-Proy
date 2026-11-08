@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
 import {
   Alert,
   RefreshControl,
@@ -19,6 +20,7 @@ import { appointmentService } from '../../services/appointmentService';
 import { favoriteService } from '../../services/favoriteService';
 import { professionalService } from '../../services/professionalService';
 import { calculateDistanceKm, getEstimatedCoords } from '../../utils/distance';
+import { storage } from '../../utils/storage';
 
 export const HomeScreen = ({ navigation }: any) => {
   const { user, logout } = useAuth();
@@ -42,6 +44,20 @@ export const HomeScreen = ({ navigation }: any) => {
   } = useFetch(() => favoriteService.getMyFavorites());
 
   // Sensor 2: Shake gesture handler
+  const [shakeEnabled, setShakeEnabled] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
+      storage.getShakeEnabled().then((enabled) => {
+        if (isMounted) setShakeEnabled(enabled);
+      });
+      return () => {
+        isMounted = false;
+      };
+    }, [])
+  );
+
   const handleShake = useCallback(() => {
     Alert.alert(
       '¡Gesto de Sacudida Detectado! 📱',
@@ -58,7 +74,7 @@ export const HomeScreen = ({ navigation }: any) => {
     );
   }, [refetchApts, navigation]);
 
-  useShake(handleShake);
+  useShake(handleShake, 1.78, shakeEnabled);
 
   const onRefresh = async () => {
     await Promise.all([refetchApts(), refetchProfs(), refetchFavs(), requestLocation()]);

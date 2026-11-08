@@ -114,8 +114,12 @@ export const MyAppointmentsScreen = ({ navigation }: any) => {
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <View style={styles.aptTitleCol}>
-                <Text style={styles.aptTitle}>Cita #{item.id}</Text>
-                <Text style={styles.aptSub}>Servicio médico #{item.medicalServiceId}</Text>
+                <Text style={styles.aptTitle}>
+                  {item.medicalServiceName || `Cita #${item.id}`}
+                </Text>
+                <Text style={styles.aptSub}>
+                  {item.professionalName ? `Dr(a). ${item.professionalName} • ` : ''}Cita #{item.id}
+                </Text>
               </View>
               <StatusBadge status={item.status} />
             </View>

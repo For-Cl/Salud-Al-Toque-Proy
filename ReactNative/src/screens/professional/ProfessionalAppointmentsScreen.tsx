@@ -14,6 +14,7 @@ import { EmptyStateView } from '../../components/EmptyStateView';
 import { ErrorView } from '../../components/ErrorView';
 import { LoadingView } from '../../components/LoadingView';
 import { StatusBadge } from '../../components/StatusBadge';
+import PatientContactModal from '../../components/PatientContactModal';
 import { useFetch } from '../../hooks/useFetch';
 import { appointmentService } from '../../services/appointmentService';
 import type { AppointmentDTO } from '../../types';
@@ -21,6 +22,7 @@ import type { AppointmentDTO } from '../../types';
 export const ProfessionalAppointmentsScreen = () => {
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+  const [contactApt, setContactApt] = useState<AppointmentDTO | null>(null);
 
   const {
     data: appointments,
@@ -144,10 +146,21 @@ export const ProfessionalAppointmentsScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <View>
-                <Text style={styles.title}>Cita #{item.id}</Text>
-                <Text style={styles.sub}>Paciente #{item.patientId}</Text>
-              </View>
+              <TouchableOpacity
+                onPress={() => setContactApt(item)}
+                activeOpacity={0.7}
+                style={{ flex: 1 }}
+              >
+                <Text style={styles.title}>
+                  {item.patientName || `Paciente #${item.patientId}`}
+                </Text>
+                <Text style={styles.sub}>
+                  Cita #{item.id} {item.medicalServiceName ? `• ${item.medicalServiceName}` : ''}
+                </Text>
+                <Text style={{ fontSize: 11, color: '#0d9488', fontWeight: '600', marginTop: 2 }}>
+                  Ver contacto y ficha ↗
+                </Text>
+              </TouchableOpacity>
               <StatusBadge status={item.status} />
             </View>
 
@@ -201,6 +214,12 @@ export const ProfessionalAppointmentsScreen = () => {
             </View>
           </View>
         )}
+      />
+
+      <PatientContactModal
+        visible={!!contactApt}
+        appointment={contactApt}
+        onClose={() => setContactApt(null)}
       />
     </View>
   );

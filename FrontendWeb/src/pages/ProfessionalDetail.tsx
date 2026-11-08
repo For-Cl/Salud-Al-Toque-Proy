@@ -222,7 +222,9 @@ export default function ProfessionalDetailPage() {
                         <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600">
                           <FiUser />
                         </div>
-                        <span className="text-sm font-medium text-gray-800">Paciente #{rev.patientId}</span>
+                        <span className="text-sm font-medium text-gray-800">
+                          {rev.patientName || `Paciente #${rev.patientId}`}
+                        </span>
                       </div>
                       <StarRating rating={rev.rating} size="sm" />
                     </div>

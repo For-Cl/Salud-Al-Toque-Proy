@@ -29,8 +29,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { token } = await authService.signIn({ email, password });
-      login(token);
-      toast.success('¡Bienvenido de vuelta!');
+      const resolved = await login(token);
+      toast.success(`¡Bienvenido, ${resolved.name || 'de vuelta'}!`);
       navigate('/dashboard');
     } catch (err: any) {
       const msg = err?.response?.data?.message || 'Credenciales incorrectas';
