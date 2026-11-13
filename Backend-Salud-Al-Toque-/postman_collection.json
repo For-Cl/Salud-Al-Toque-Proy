@@ -1,0 +1,1275 @@
+{
+  "info": {
+    "_postman_id": "8d4c4c75-3c65-4d3c-a4d8-sss001",
+    "name": "Salud al Toque - API",
+    "description": "Postman Collection del backend Salud al Toque. Incluye flujo de integración de eventos y procesamiento async con Mailpit.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "professionalToken",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "eventTestAppointmentId",
+      "value": ""
+    },
+    {
+      "key": "eventTestReviewId",
+      "value": ""
+    },
+    {
+      "key": "testEmail",
+      "value": ""
+    },
+    {
+      "key": "testPassword",
+      "value": "Paciente123"
+    },
+    {
+      "key": "professionalEmail",
+      "value": "carlos@gmail.com"
+    },
+    {
+      "key": "professionalPassword",
+      "value": "123456"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Auth",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/signup",
+            "description": "Registra un nuevo usuario (paciente). Dispara UserRegisteredEvent -> listener async en notification-*.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nuevo Paciente\",\n  \"email\": \"paciente.{{$timestamp}}@example.com\",\n  \"password\": \"Paciente123\",\n  \"phone\": \"999999999\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.token) pm.collectionVariables.set('token', data.token);",
+                  "if (data.accessToken) pm.collectionVariables.set('token', data.accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sign In",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/signin",
+            "description": "Login genérico. El token se guarda en la variable {{token}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"luis@gmail.com\",\n  \"password\": \"123456\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.token) pm.collectionVariables.set('token', data.token);",
+                  "if (data.accessToken) pm.collectionVariables.set('token', data.accessToken);",
+                  "pm.test('JWT token was stored', function () { pm.expect(pm.collectionVariables.get('token')).to.not.be.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sign In - Professional",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/signin",
+            "description": "Login del profesional. Guarda el token en {{professionalToken}}; usado en endpoints PROFESSIONAL (medical-services, availabilities, accept/reject/complete).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{professionalEmail}}\",\n  \"password\": \"{{professionalPassword}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.token) pm.collectionVariables.set('professionalToken', data.token);",
+                  "if (data.accessToken) pm.collectionVariables.set('professionalToken', data.accessToken);",
+                  "pm.test('Professional JWT stored', function () { pm.expect(pm.collectionVariables.get('professionalToken')).to.not.be.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sign In - Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/signin",
+            "description": "Login del admin. Guarda el token en {{adminToken}}; usado en endpoints ADMIN (listar todas las citas, specialties, deletes).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"123456\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.token) pm.collectionVariables.set('adminToken', data.token);",
+                  "if (data.accessToken) pm.collectionVariables.set('adminToken', data.accessToken);",
+                  "pm.test('Admin JWT stored', function () { pm.expect(pm.collectionVariables.get('adminToken')).to.not.be.empty; });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Users",
+      "item": [
+        {
+          "name": "List Users (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/users",
+            "description": "Requiere rol ADMIN."
+          }
+        },
+        {
+          "name": "Get User by ID (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/users/1",
+            "description": "Requiere rol ADMIN. 404 si no existe."
+          }
+        },
+        {
+          "name": "Create User (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/users",
+            "description": "Requiere rol ADMIN. Crea un usuario con rol (PATIENT / PROFESSIONAL / ADMIN).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nuevo Usuario\",\n  \"email\": \"nuevo@example.com\",\n  \"password\": \"Paciente123\",\n  \"phone\": \"999999999\",\n  \"role\": \"PATIENT\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete User (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/users/1",
+            "description": "Requiere rol ADMIN. 404 si no existe."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Patients",
+      "item": [
+        {
+          "name": "List Patients (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/patients",
+            "description": "Requiere rol ADMIN."
+          }
+        },
+        {
+          "name": "Get Patient by ID (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/patients/1",
+            "description": "Requiere rol ADMIN. 404 si no existe."
+          }
+        },
+        {
+          "name": "Create Patient (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/patients",
+            "description": "Requiere rol ADMIN.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": \"Av. Lima 123\",\n  \"dateOfBirth\": \"1990-05-10\",\n  \"user\": {\n    \"id\": 1\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Patient (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/patients/1",
+            "description": "Requiere rol ADMIN. 404 si no existe."
+          }
+        },
+        {
+          "name": "Get My Patient Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/patients/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Professionals",
+      "item": [
+        {
+          "name": "List Professionals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/professionals"
+          }
+        },
+        {
+          "name": "Get Professional by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/professionals/1"
+          }
+        },
+        {
+          "name": "Filter by Specialty",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/professionals?specialty=Cardiologia"
+          }
+        },
+        {
+          "name": "Filter by Location",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/professionals?location=Lima"
+          }
+        },
+        {
+          "name": "Filter by Max Price",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/professionals?maxPrice=80"
+          }
+        },
+        {
+          "name": "Combined Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/professionals?specialty=Cardiologia&location=Lima&maxPrice=80"
+          }
+        },
+        {
+          "name": "Create Professional (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/professionals",
+            "description": "Requiere rol ADMIN. El user.id debe existir y tener rol PROFESSIONAL. La specialty es opcional; si se envía specialty.id debe existir.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"id\": 1\n  },\n  \"specialty\": {\n    \"id\": 1\n  },\n  \"location\": \"Lima\",\n  \"rating\": 0.0\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Professional (ADMIN)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/professionals/1",
+            "description": "Requiere rol ADMIN. Actualiza location, rating y (opcionalmente) specialty.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location\": \"Lima\",\n  \"rating\": 4.5,\n  \"specialty\": {\n    \"id\": 1\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Professional (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/professionals/1",
+            "description": "Requiere rol ADMIN. 404 si no existe."
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Specialties",
+      "item": [
+        {
+          "name": "List Specialties",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/specialties"
+          }
+        },
+        {
+          "name": "Get Specialty by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/specialties/1"
+          }
+        },
+        {
+          "name": "Create Specialty (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/specialties",
+            "description": "Requiere rol ADMIN. 403 si el token no es admin.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Psicologia\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Specialty (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/specialties/1",
+            "description": "Requiere rol ADMIN. 404 si la especialidad no existe."
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Medical Services",
+      "item": [
+        {
+          "name": "List Medical Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/medical-services"
+          }
+        },
+        {
+          "name": "Get Medical Service by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/medical-services/1"
+          }
+        },
+        {
+          "name": "Get Services by Professional",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/medical-services/professional/1",
+            "description": "Público. Lista los servicios de un profesional."
+          }
+        },
+        {
+          "name": "Create Medical Service (PROFESSIONAL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/medical-services",
+            "description": "Requiere rol PROFESSIONAL. El profesional se deriva del JWT: el campo professionalId del body NO se usa (el backend lo sobrescribe).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Consulta general\",\n  \"description\": \"Consulta médica general\",\n  \"price\": 80\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Medical Service (PROFESSIONAL, owner)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/medical-services/1",
+            "description": "Solo el profesional dueño del servicio puede eliminarlo. 403/404 si no es dueño o no existe."
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Availability",
+      "item": [
+        {
+          "name": "List Availabilities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/availabilities"
+          }
+        },
+        {
+          "name": "Get Availability by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/availabilities/1"
+          }
+        },
+        {
+          "name": "Get Availabilities by Professional",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/availabilities/professional/1",
+            "description": "Público. Necesario para validar que la hora de la cita caiga dentro de la disponibilidad (día en español: LUNES..DOMINGO)."
+          }
+        },
+        {
+          "name": "Create Availability (PROFESSIONAL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/availabilities",
+            "description": "Requiere rol PROFESSIONAL. El profesional se deriva del JWT (professionalId del body se ignora).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dayOfWeek\": \"LUNES\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"13:00\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Availability (PROFESSIONAL, owner)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/availabilities/1",
+            "description": "Solo el profesional dueño puede eliminar su disponibilidad."
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Appointments",
+      "item": [
+        {
+          "name": "List All Appointments (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments",
+            "description": "Requiere rol ADMIN."
+          }
+        },
+        {
+          "name": "Get Appointment by ID (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/1",
+            "description": "Requiere rol ADMIN."
+          }
+        },
+        {
+          "name": "List Appointments by Patient (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/patient/1",
+            "description": "Requiere rol ADMIN."
+          }
+        },
+        {
+          "name": "List Appointments by Professional (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/professional/1",
+            "description": "Requiere rol ADMIN."
+          }
+        },
+        {
+          "name": "My Appointments (PATIENT)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/my-appointments",
+            "description": "Requiere rol PATIENT. Lista las citas del paciente autenticado."
+          }
+        },
+        {
+          "name": "My Professional Appointments (PROFESSIONAL)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/my-professional-appointments",
+            "description": "Requiere rol PROFESSIONAL. Lista las citas asignadas al profesional autenticado."
+          }
+        },
+        {
+          "name": "Create Appointment (PATIENT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments",
+            "description": "Requiere rol PATIENT. Valida formato YYYY-MM-DD / HH:mm, disponibilidad del profesional (día en español) y que el horario no esté reservado. El profesional se obtiene del medicalServiceId. Estado inicial: PENDIENTE. Dispara AppointmentCreatedEvent.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-10-05\",\n  \"time\": \"10:30\",\n  \"notes\": \"Consulta de control\",\n  \"medicalServiceId\": 1\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is created or successful', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.id) pm.collectionVariables.set('eventTestAppointmentId', String(data.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Accept Appointment (PROFESSIONAL)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/{{eventTestAppointmentId}}/accept",
+            "description": "Solo citas PENDIENTE -> ACEPTADA. 409 si ya no está pendiente; 403 si la cita es de otro profesional."
+          }
+        },
+        {
+          "name": "Reject Appointment (PROFESSIONAL)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/{{eventTestAppointmentId}}/reject",
+            "description": "Solo citas PENDIENTE -> RECHAZADA. 409 si ya no está pendiente; 403 si la cita es de otro profesional."
+          }
+        },
+        {
+          "name": "Complete Appointment (PROFESSIONAL)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/{{eventTestAppointmentId}}/complete",
+            "description": "Solo citas ACEPTADA -> COMPLETADA. Requerido antes de que el paciente pueda dejar una review. 409 si no está aceptada."
+          }
+        },
+        {
+          "name": "Delete Appointment (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/{{eventTestAppointmentId}}",
+            "description": "Requiere rol ADMIN. 404 si la cita no existe."
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Reviews",
+      "item": [
+        {
+          "name": "List Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/reviews"
+          }
+        },
+        {
+          "name": "Get Review by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/reviews/1"
+          }
+        },
+        {
+          "name": "Get Reviews by Professional",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/reviews/professional/1",
+            "description": "Público. Lista las reseñas de un profesional."
+          }
+        },
+        {
+          "name": "Create Review (PATIENT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/reviews",
+            "description": "Requiere rol PATIENT. La cita debe ser del paciente y estar COMPLETADA; no debe tener review previa (409 en ambos casos). rating entre 1 y 5. Recalcula el rating promedio del profesional y dispara ReviewCreatedEvent.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": {{eventTestAppointmentId}},\n  \"rating\": 5,\n  \"comment\": \"Muy buena atención.\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.id) pm.collectionVariables.set('eventTestReviewId', String(data.id));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10 - Favorites",
+      "item": [
+        {
+          "name": "List My Favorites",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/favorites/my-favorites",
+            "description": "Requiere rol PATIENT. Endpoint actualizado: /favorites/my-favorites (antes /favorites)."
+          }
+        },
+        {
+          "name": "Add Favorite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/favorites/professional/1",
+            "description": "Requiere rol PATIENT. Endpoint actualizado: el professionalId va en el path (antes body). 409 si ya está en favoritos; 404 si el profesional no existe."
+          }
+        },
+        {
+          "name": "Delete Favorite",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/favorites/1",
+            "description": "Requiere rol PATIENT. 403 si intentas eliminar el favorito de otro paciente; 404 si no existe."
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Events & Async Integration Test",
+      "description": "Flujo funcional completo para probar eventos + asincronia: paciente crea cita -> profesional inicia sesión y acepta -> profesional completa -> paciente crea review. Los listeners @Async deben ejecutarse en notification-*. Orden: 00 -> 09.",
+      "item": [
+        {
+          "name": "00 - Backend reachable",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/specialties",
+            "description": "Comprueba que baseUrl responde. Un 404 no necesariamente significa que Spring esté caído."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Backend reachable', function () { pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 404]); });",
+                  "console.log('HTTP', pm.request.method, pm.request.url.toString(), 'status=', pm.response.code, 'responseTimeMs=', pm.response.responseTime);",
+                  "console.log('Si este endpoint devuelve 404 pero hay respuesta, confirma que el servidor escucha en baseUrl; ajusta el path si tu app no expone /.');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01 - UserRegisteredEvent - Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/signup",
+            "description": "Dispara UserRegisteredEvent. Revisa el backend para comprobar que el listener corre en notification-*.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Async Test Patient\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"phone\": \"999999999\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('testEmail', 'async.' + Date.now() + '@example.com');",
+                  "console.log('TEST EMAIL =', pm.collectionVariables.get('testEmail'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.token) pm.collectionVariables.set('token', data.token);",
+                  "if (data.accessToken) pm.collectionVariables.set('token', data.accessToken);",
+                  "console.log('EXPECTED EVENT: UserRegisteredEvent -> listener should run on notification-* thread.');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Patient - Sign In",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/signin",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.token) pm.collectionVariables.set('token', data.token);",
+                  "if (data.accessToken) pm.collectionVariables.set('token', data.accessToken);",
+                  "pm.test('JWT token was stored', function () { pm.expect(pm.collectionVariables.get('token')).to.not.be.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - AppointmentCreatedEvent - Create Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments",
+            "description": "Dispara AppointmentCreatedEvent. Verifica en logs dos listeners y threads notification-*. IMPORTANTE: la fecha/hora deben caer dentro de la disponibilidad del profesional (por ejemplo LUNES 09:00-13:00 para 2026-10-05) o el backend responde 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-10-05\",\n  \"time\": \"11:00\",\n  \"notes\": \"ASYNC EVENT TEST - AppointmentCreatedEvent\",\n  \"medicalServiceId\": 1\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is created or successful', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.id) pm.collectionVariables.set('eventTestAppointmentId', String(data.id));",
+                  "console.log('EXPECTED EVENT: AppointmentCreatedEvent -> patient + professional listeners should run asynchronously.');",
+                  "console.log('appointmentId=', pm.collectionVariables.get('eventTestAppointmentId'));",
+                  "pm.test('Appointment ID captured', function () { pm.expect(pm.collectionVariables.get('eventTestAppointmentId')).to.not.be.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Verify Appointment persisted",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/my-appointments",
+            "description": "Usa /my-appointments (rol PATIENT), ya que GET /appointments/{id} requiere ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "const list = pm.response.json();",
+                  "const id = pm.collectionVariables.get('eventTestAppointmentId');",
+                  "pm.test('Appointment persisted', function () { pm.expect(list.some(a => String(a.id) === id)).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Professional - Sign In",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/signin",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{professionalEmail}}\",\n  \"password\": \"{{professionalPassword}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.token) pm.collectionVariables.set('professionalToken', data.token);",
+                  "if (data.accessToken) pm.collectionVariables.set('professionalToken', data.accessToken);",
+                  "pm.test('Professional JWT token was stored', function () { pm.expect(pm.collectionVariables.get('professionalToken')).to.not.be.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Professional - Accept Appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/{{eventTestAppointmentId}}/accept",
+            "description": "El profesional acepta la cita usando su JWT profesional. PENDIENTE -> ACEPTADA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "pm.test('Cita aceptada', function () { pm.expect(data.status).to.eql('ACEPTADA'); });",
+                  "console.log('Appointment accepted by professional. appointmentId=', pm.collectionVariables.get('eventTestAppointmentId'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Professional - Complete Appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professionalToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/appointments/{{eventTestAppointmentId}}/complete",
+            "description": "El profesional marca la cita como completada. ACEPTADA -> COMPLETADA."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "pm.test('Cita completada', function () { pm.expect(data.status).to.eql('COMPLETADA'); });",
+                  "console.log('Appointment completed by professional. appointmentId=', pm.collectionVariables.get('eventTestAppointmentId'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - Patient - ReviewCreatedEvent - Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/reviews",
+            "description": "El paciente, ya autenticado, deja una reseña sobre la cita completada. Dispara ReviewCreatedEvent. Solo funciona si la cita está COMPLETADA y no tiene review previa.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": {{eventTestAppointmentId}},\n  \"rating\": 5,\n  \"comment\": \"ASYNC EVENT TEST - ReviewCreatedEvent after COMPLETADA\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let data = {}; try { data = pm.response.json(); } catch(e) {}",
+                  "if (data.id) pm.collectionVariables.set('eventTestReviewId', String(data.id));",
+                  "pm.test('Review ID captured', function () { pm.expect(pm.collectionVariables.get('eventTestReviewId')).to.not.be.empty; });",
+                  "console.log('EXPECTED EVENT: ReviewCreatedEvent -> listener should run asynchronously on notification-* thread.');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 - Verify Review persisted",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/reviews/{{eventTestReviewId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "console.log('Review persisted. reviewId=', pm.collectionVariables.get('eventTestReviewId'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 - Async Evidence Checklist",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/specialties"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Backend reachable', function () { pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 404]); });",
+                  "console.log('FLOW: patient signup/signin -> create appointment -> professional signin -> ACCEPT -> COMPLETE -> patient review.');",
+                  "console.log('ASYNC: verify backend logs show publisher on http-nio-* and listener on notification-* for the relevant events.');",
+                  "console.log('MAIL: with Mailpit, verify notifications at http://localhost:8025.');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

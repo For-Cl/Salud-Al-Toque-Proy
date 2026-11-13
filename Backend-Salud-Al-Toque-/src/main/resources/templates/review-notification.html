@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva reseña</title>
+</head>
+<body>
+<h2>Nueva reseña recibida</h2>
+<p>Hola <strong th:text="${professionalName}">profesional</strong>,</p>
+<p>Has recibido una nueva reseña de <strong th:text="${patientName}">paciente</strong>.</p>
+<p>Calificación: <strong th:text="${rating}">5</strong>/5</p>
+<p>Comentario:</p>
+<p th:text="${comment}">Sin comentario</p>
+</body>
+</html>

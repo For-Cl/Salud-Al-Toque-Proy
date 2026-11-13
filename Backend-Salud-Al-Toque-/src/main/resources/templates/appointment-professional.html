@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva cita</title>
+</head>
+<body>
+<h2>Nueva cita registrada</h2>
+<p>Hola <strong th:text="${professionalName}">profesional</strong>,</p>
+<p>Se ha registrado una nueva cita.</p>
+<ul>
+    <li>Paciente: <strong th:text="${patientName}">Paciente</strong></li>
+    <li>Fecha: <strong th:text="${date}">2026-10-05</strong></li>
+    <li>Hora: <strong th:text="${time}">10:30</strong></li>
+    <li>Servicio: <strong th:text="${medicalServiceName}">Servicio</strong></li>
+</ul>
+</body>
+</html>

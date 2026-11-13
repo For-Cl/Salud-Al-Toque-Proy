@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmación de cita</title>
+</head>
+<body>
+<h2>Confirmación de cita</h2>
+<p>Hola <strong th:text="${patientName}">paciente</strong>,</p>
+<p>Tu cita ha sido registrada correctamente.</p>
+<ul>
+    <li>Fecha: <strong th:text="${date}">2026-10-05</strong></li>
+    <li>Hora: <strong th:text="${time}">10:30</strong></li>
+    <li>Profesional: <strong th:text="${professionalName}">Profesional</strong></li>
+    <li>Servicio: <strong th:text="${medicalServiceName}">Servicio</strong></li>
+    <li>Precio: S/ <strong th:text="${price}">0.0</strong></li>
+</ul>
+</body>
+</html>
