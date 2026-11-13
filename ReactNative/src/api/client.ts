@@ -4,9 +4,10 @@ import { storage } from '../utils/storage';
 
 // Configuración de URL base del Backend
 // En Expo, puedes definir EXPO_PUBLIC_API_URL o EXPO_PUBLIC_API_HOST en un archivo .env
-// Por defecto se conecta a la IP local para pruebas con dispositivo físico / emulador
-const DEFAULT_HOST = process.env.EXPO_PUBLIC_API_HOST || '192.168.18.126';
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || `http://${DEFAULT_HOST}:8080`;
+//const DEFAULT_HOST = process.env.EXPO_PUBLIC_API_HOST || '192.168.18.126';
+//export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || `http://${DEFAULT_HOST}:8080`;
+
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://saludaltoquebackend.duckdns.org';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
