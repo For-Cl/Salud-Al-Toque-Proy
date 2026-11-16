@@ -18,6 +18,22 @@ public interface ReviewRepository
             Long professionalId
     );
 
+    List<Review> findByPatientId(
+            Long patientId
+    );
+
+    void deleteByAppointmentId(
+            Long appointmentId
+    );
+
+    void deleteByProfessionalId(
+            Long professionalId
+    );
+
+    void deleteByPatientId(
+            Long patientId
+    );
+
     boolean existsByAppointmentId(
             Long appointmentId
     );

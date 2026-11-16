@@ -219,15 +219,12 @@ VALUES ('2026-10-16', '17:30', 'PENDIENTE', 'Molestia en molar inferior derecho 
 INSERT INTO appointments (date, time, status, notes, price, patient_id, professional_id, medical_service_id)
 VALUES ('2026-10-06', '16:00', 'RECHAZADA', 'Consulta solicitada fuera del horario habitual', 80.0, 4, 1, 1);
 
--- Reseñas de Pacientes (Reviews para profesionales 2, 3 y 4)
+-- Reseñas de Pacientes (Reviews iniciales; la Cita #8 queda COMPLETADA y pendiente de calificar para demo)
 INSERT INTO reviews (rating, comment, appointment_id, patient_id, professional_id)
 VALUES (5, 'La Dra. María atendió con mucha paciencia y el tratamiento funcionó muy bien.', 4, 1, 2);
 
 INSERT INTO reviews (rating, comment, appointment_id, patient_id, professional_id)
 VALUES (5, 'El Dr. Jorge es muy cariñoso con los niños, altamente recomendado para chequeos infantiles.', 6, 1, 3);
-
-INSERT INTO reviews (rating, comment, appointment_id, patient_id, professional_id)
-VALUES (5, 'La Dra. Ana es una excelente odontóloga, no sentí ninguna molestia durante la limpieza.', 8, 1, 4);
 
 -- Favoritos (Favorites para pacientes 2, 3 y 4)
 INSERT INTO favorites (patient_id, professional_id)

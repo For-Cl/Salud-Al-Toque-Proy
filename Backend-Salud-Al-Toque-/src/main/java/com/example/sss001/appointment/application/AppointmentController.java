@@ -16,6 +16,7 @@ import com.example.sss001.availability.domain.Availability;
 import com.example.sss001.availability.domain.AvailabilityService;
 import com.example.sss001.exceptions.ResourceNotFoundException;
 import com.example.sss001.event.AppointmentCreatedEvent;
+import com.example.sss001.review.infrastructure.ReviewRepository;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class AppointmentController {
     private final MedicalServiceManager medicalServiceManager;
     private final AvailabilityService availabilityService;
     private final ApplicationEventPublisher eventPublisher;
+    private final ReviewRepository reviewRepository;
 
     public AppointmentController(
             AppointmentService service,
@@ -51,7 +53,8 @@ public class AppointmentController {
             ProfessionalService professionalService,
             MedicalServiceManager medicalServiceManager,
             AvailabilityService availabilityService,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            ReviewRepository reviewRepository) {
 
         this.service = service;
         this.patientService = patientService;
@@ -59,6 +62,7 @@ public class AppointmentController {
         this.medicalServiceManager = medicalServiceManager;
         this.availabilityService = availabilityService;
         this.eventPublisher = eventPublisher;
+        this.reviewRepository = reviewRepository;
     }
 
     @GetMapping
@@ -608,6 +612,12 @@ public class AppointmentController {
         dto.setPatientPhone(patientPhone);
         dto.setPatientAddress(patientAddress);
         dto.setPatientDateOfBirth(patientDateOfBirth);
+
+        if (reviewRepository != null && appointment.getId() != null) {
+            dto.setHasReview(reviewRepository.existsByAppointmentId(appointment.getId()));
+        } else {
+            dto.setHasReview(false);
+        }
 
         return dto;
     }

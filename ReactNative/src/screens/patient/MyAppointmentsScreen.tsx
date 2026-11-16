@@ -147,7 +147,7 @@ export const MyAppointmentsScreen = ({ navigation }: any) => {
               </View>
             ) : null}
 
-            {item.status === 'COMPLETADA' && (
+            {item.status === 'COMPLETADA' && !item.hasReview && (
               <TouchableOpacity
                 style={styles.reviewBtn}
                 onPress={() => handleOpenReview(item)}
@@ -155,6 +155,12 @@ export const MyAppointmentsScreen = ({ navigation }: any) => {
                 <Ionicons name="star" size={14} color="#ffffff" style={{ marginRight: 6 }} />
                 <Text style={styles.reviewBtnText}>Dejar Reseña</Text>
               </TouchableOpacity>
+            )}
+            {item.status === 'COMPLETADA' && item.hasReview && (
+              <View style={[styles.reviewBtn, { backgroundColor: '#d1fae5' }]}>
+                <Ionicons name="checkmark-circle" size={14} color="#047857" style={{ marginRight: 6 }} />
+                <Text style={[styles.reviewBtnText, { color: '#047857' }]}>Reseña enviada</Text>
+              </View>
             )}
           </View>
         )}

@@ -13,6 +13,10 @@ public interface AvailabilityRepository
             Long professionalId
     );
 
+    void deleteByProfessionalId(
+            Long professionalId
+    );
+
     List<Availability> findByProfessionalIdAndDayOfWeek(
             Long professionalId,
             String dayOfWeek

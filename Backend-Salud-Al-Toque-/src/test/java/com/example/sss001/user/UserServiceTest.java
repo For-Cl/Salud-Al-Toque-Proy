@@ -1,5 +1,12 @@
 package com.example.sss001.user;
 
+import com.example.sss001.appointment.infrastructure.AppointmentRepository;
+import com.example.sss001.availability.infrastructure.AvailabilityRepository;
+import com.example.sss001.favorite.infrastructure.FavoriteRepository;
+import com.example.sss001.medicalservice.infrastructure.MedicalServiceRepository;
+import com.example.sss001.patient.infrastructure.PatientRepository;
+import com.example.sss001.professional.infrastructure.ProfessionalRepository;
+import com.example.sss001.review.infrastructure.ReviewRepository;
 import com.example.sss001.user.domain.User;
 import com.example.sss001.user.domain.UserService;
 import com.example.sss001.user.infrastructure.UserRepository;
@@ -20,6 +27,27 @@ class UserServiceTest {
 
     @Mock
     private UserRepository repository;
+
+    @Mock
+    private PatientRepository patientRepository;
+
+    @Mock
+    private ProfessionalRepository professionalRepository;
+
+    @Mock
+    private AppointmentRepository appointmentRepository;
+
+    @Mock
+    private ReviewRepository reviewRepository;
+
+    @Mock
+    private FavoriteRepository favoriteRepository;
+
+    @Mock
+    private AvailabilityRepository availabilityRepository;
+
+    @Mock
+    private MedicalServiceRepository medicalServiceRepository;
 
     @InjectMocks
     private UserService service;

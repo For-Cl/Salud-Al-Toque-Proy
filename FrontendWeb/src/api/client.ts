@@ -29,7 +29,7 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor — handle errors globally
+// Response interceptor — handle global session expiry and network failures without duplicate toasts
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -37,37 +37,22 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (error.config?.skipErrorToast) {
-      return Promise.reject(error);
-    }
-
     if (!error.response) {
-      toast.error('Error de conexión. Verifica que el backend esté en ejecución.');
+      if (!error.config?.skipErrorToast) {
+        toast.error('Error de conexión. Verifica que el backend esté en ejecución.');
+      }
       return Promise.reject(error);
     }
 
-    const { status, data } = error.response;
+    const { status } = error.response;
 
-    switch (status) {
-      case 401:
-        localStorage.removeItem('token');
-        localStorage.removeItem('user_profile');
-        if (window.location.pathname !== '/login') {
-          toast.error('Tu sesión ha expirado. Inicia sesión de nuevo.');
-          window.location.href = '/login';
-        }
-        break;
-      case 403:
-        toast.error('No tienes permisos para realizar esta acción.');
-        break;
-      case 409:
-        toast.error(data?.message || 'Conflicto con los datos enviados.');
-        break;
-      case 500:
-        toast.error('Error interno del servidor. Intenta más tarde.');
-        break;
-      default:
-        break;
+    if (status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user_profile');
+      if (window.location.pathname !== '/login') {
+        toast.error('Tu sesión ha expirado. Inicia sesión de nuevo.');
+        window.location.href = '/login';
+      }
     }
 
     return Promise.reject(error);

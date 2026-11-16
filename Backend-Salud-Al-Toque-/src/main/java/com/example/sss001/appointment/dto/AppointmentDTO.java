@@ -24,6 +24,7 @@ public class AppointmentDTO {
     private String patientPhone;
     private String patientAddress;
     private String patientDateOfBirth;
+    private Boolean hasReview;
 
     public AppointmentDTO(
             Long id,

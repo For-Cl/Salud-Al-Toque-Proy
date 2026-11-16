@@ -13,6 +13,10 @@ public interface AppointmentRepository
 
     List<Appointment> findByProfessionalId(Long professionalId);
 
+    void deleteByPatientId(Long patientId);
+
+    void deleteByProfessionalId(Long professionalId);
+
     List<Appointment> findByPatientUserEmail(String email);
 
     List<Appointment> findByProfessionalUserEmail(String email);

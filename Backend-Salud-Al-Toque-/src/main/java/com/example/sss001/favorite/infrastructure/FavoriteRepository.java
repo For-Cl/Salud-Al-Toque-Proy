@@ -11,6 +11,12 @@ public interface FavoriteRepository
 
     List<Favorite> findByPatientId(Long patientId);
 
+    List<Favorite> findByProfessionalId(Long professionalId);
+
+    void deleteByPatientId(Long patientId);
+
+    void deleteByProfessionalId(Long professionalId);
+
     Optional<Favorite> findByPatientIdAndProfessionalId(
             Long patientId,
             Long professionalId

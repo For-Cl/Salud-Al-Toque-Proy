@@ -9,4 +9,6 @@ public interface MedicalServiceRepository
         extends JpaRepository<MedicalService, Long> {
 
     List<MedicalService> findByProfessionalId(Long professionalId);
+
+    void deleteByProfessionalId(Long professionalId);
 }

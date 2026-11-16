@@ -11,6 +11,8 @@ public interface ProfessionalRepository
 
     Optional<Professional> findByUserEmail(String email);
 
+    Optional<Professional> findByUserId(Long userId);
+
     List<Professional> findBySpecialtyNameIgnoreCase(
             String name
     );

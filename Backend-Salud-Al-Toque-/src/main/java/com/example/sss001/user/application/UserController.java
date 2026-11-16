@@ -1,5 +1,6 @@
 package com.example.sss001.user.application;
 
+import com.example.sss001.exceptions.ConflictException;
 import com.example.sss001.exceptions.ResourceNotFoundException;
 import com.example.sss001.user.domain.User;
 import com.example.sss001.user.domain.UserService;
@@ -82,6 +83,12 @@ public class UserController {
         if (user == null) {
             throw new ResourceNotFoundException(
                     "Usuario no encontrado"
+            );
+        }
+
+        if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+            throw new ConflictException(
+                    "No se puede eliminar una cuenta de Administrador"
             );
         }
 

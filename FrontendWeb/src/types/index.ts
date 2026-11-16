@@ -91,6 +91,7 @@ export interface AppointmentDTO {
   patientPhone?: string;
   patientAddress?: string;
   patientDateOfBirth?: string;
+  hasReview?: boolean;
 }
 
 export interface CreateAppointmentRequest {

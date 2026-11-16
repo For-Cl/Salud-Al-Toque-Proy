@@ -162,7 +162,7 @@ export default function MyAppointmentsPage() {
                   </p>
                 )}
 
-                {apt.status === 'COMPLETADA' && (
+                {apt.status === 'COMPLETADA' && !apt.hasReview && (
                   <div className="pt-2 border-t border-gray-100 flex justify-end">
                     <button
                       onClick={() => handleOpenReview(apt)}
@@ -171,6 +171,14 @@ export default function MyAppointmentsPage() {
                       <FiStar className="h-3.5 w-3.5" />
                       Dejar Reseña
                     </button>
+                  </div>
+                )}
+                {apt.status === 'COMPLETADA' && apt.hasReview && (
+                  <div className="pt-2 border-t border-gray-100 flex justify-end">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
+                      <FiStar className="h-3.5 w-3.5" />
+                      Reseña enviada
+                    </span>
                   </div>
                 )}
               </div>
