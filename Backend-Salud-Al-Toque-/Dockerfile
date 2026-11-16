@@ -44,7 +44,7 @@ ENV DB_HOST=localhost \
     MAIL_USERNAME=no-reply@saludaltoque.local \
     MAIL_PASSWORD="" \
     MAIL_SMTP_AUTH=true \
-    MAIL_SMTP_STARTTLS=true \
+    MAIL_SMTP_STARTTLS=true
 
 # Run Spring Boot application
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
