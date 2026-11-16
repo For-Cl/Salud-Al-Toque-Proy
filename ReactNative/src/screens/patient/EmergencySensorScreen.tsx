@@ -116,7 +116,7 @@ export const EmergencySensorScreen = () => {
         <Ionicons name="hardware-chip-outline" size={28} color="#0d9488" />
         <Text style={styles.title}>Sensores y Asistencia Móvil</Text>
         <Text style={styles.subtitle}>
-          Integración de hardware del dispositivo para atención en salud (Rúbrica DBP 2.3)
+          Integración de hardware del dispositivo para atención en salud
         </Text>
       </View>
 
