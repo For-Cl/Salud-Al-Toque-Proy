@@ -6,7 +6,7 @@ Aplicación móvil desarrollada con **React Native**, **Expo SDK 58** y **TypeSc
 
 ## Tecnologías
 
-- **React Native** con navegación tabulada por rol (`@react-navigation`).
+- **React Native** con navegación tabulada y stack adaptativo por rol (`@react-navigation`).
 - **Expo SDK 58** — GPS, acelerómetro, cámara, SecureStore.
 - **TypeScript** estricto — tipado completo de DTOs y modelos.
 - **Axios** — cliente HTTP con interceptores JWT y mensajes amigables (`friendlyMessage`).
@@ -21,7 +21,7 @@ src/
 ├── contexts/       # AuthContext — estado global de autenticación
 ├── hooks/          # Custom hooks: useFetch, useLocation, useShake
 ├── components/     # 7 componentes presentacionales reutilizables
-├── screens/        # 13 pantallas organizadas por actor (auth, patient, professional)
+├── screens/        # 14 pantallas organizadas por actor (auth, patient, professional, admin)
 ├── services/       # 10 servicios desacoplados por entidad
 ├── navigation/     # RootNavigator + navegadores tabulados por rol
 ├── utils/          # Haversine (distancias) y almacenamiento seguro
@@ -59,11 +59,11 @@ src/
 | Servicio | Endpoints consumidos |
 |---|---|
 | `authService` | `POST /auth/signin`, `POST /auth/signup` |
-| `userService` | `GET/PUT /users/me`, `PUT /users/me/password` |
+| `userService` | `GET /users`, `POST /users`, `DELETE /users/{id}`, `GET/PUT /users/me`, `PUT /users/me/password` |
 | `patientService` | `GET/PUT /patients/me` |
-| `professionalService` | `GET /professionals`, `GET /professionals/{id}` |
-| `appointmentService` | `GET /appointments/my-*`, `POST /appointments`, `PATCH /{id}/accept\|reject\|complete` |
-| `reviewService` | `GET /reviews/professional/{id}`, `POST /reviews` |
+| `professionalService` | `GET /professionals`, `GET /professionals/{id}`, `POST /professionals` |
+| `appointmentService` | `GET /appointments`, `GET /appointments/my-*`, `POST /appointments`, `PATCH /{id}/accept\|reject\|complete` |
+| `reviewService` | `GET /reviews`, `GET /reviews/professional/{id}`, `POST /reviews` |
 | `favoriteService` | `GET /favorites/my-favorites`, `POST/DELETE /favorites/...` |
 | `availabilityService` | `GET /availabilities/professional/{id}` |
 | `medicalServiceService` | `GET /medical-services/professional/{id}` |
@@ -73,9 +73,10 @@ src/
 
 | Navegador | Pantallas |
 |---|---|
-| `RootNavigator` | Login, Register → redirige al tab navigator según rol |
-| `PatientTabNavigator` | Inicio, Médicos, Mis Citas, Favoritos, Sensores, Perfil |
-| `ProfessionalTabNavigator` | Panel, Citas, Horarios, Servicios, Perfil |
+| `RootNavigator` | Login, Register → redirige al tab navigator adaptativo según rol + stack común (`ProfessionalDetail`, `EmergencySensor`) |
+| `PatientTabNavigator` | Inicio, Médicos, Mis Citas, Favoritos, Sensores, Mi Perfil |
+| `ProfessionalTabNavigator` | Panel, Citas, Horarios, Servicios, Sensores, Mi Perfil |
+| `AdminTabNavigator` | Gestión, Médicos, Sensores, Mi Perfil |
 
 ### Sensores y APIs Externas
 
@@ -91,7 +92,7 @@ src/
 #### Autenticación
 | Pantalla | Descripción |
 |---|---|
-| `LoginScreen` | Inicio de sesión con botones demo rápidos (Paciente / Profesional). |
+| `LoginScreen` | Inicio de sesión con botones demo rápidos (Paciente, Profesional, Admin). |
 | `RegisterScreen` | Registro de nuevos pacientes con validaciones de campos. |
 
 #### Paciente
@@ -108,14 +109,19 @@ src/
 | Pantalla | Descripción |
 |---|---|
 | `ProfessionalDashboardScreen` | Métricas: citas totales, pendientes, aceptadas, completadas. |
-| `ProfessionalAppointmentsScreen` | Gestión de citas — aceptar, rechazar o completar. |
+| `ProfessionalAppointmentsScreen` | Gestión de citas — aceptar, rechazar o completar con modal de contacto. |
 | `ProfessionalScheduleScreen` | Configuración de bloques de disponibilidad semanal. |
 | `ProfessionalServicesScreen` | Catálogo de servicios médicos con precios en soles (S/.). |
+
+#### Administrador
+| Pantalla | Descripción |
+|---|---|
+| `AdminDashboardScreen` | Métricas globales, buscador y filtros de usuarios, eliminación en cascada y alta oficial de profesionales. |
 
 #### Compartida
 | Pantalla | Descripción |
 |---|---|
-| `ProfileScreen` | Perfil editable con cambio de contraseña (todos los roles). |
+| `ProfileScreen` | Perfil editable con cambio de contraseña (todos los roles) y ajuste del sensor de sacudida. |
 
 ---
 

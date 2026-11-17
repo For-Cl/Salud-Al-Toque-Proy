@@ -39,12 +39,15 @@ export const LoginScreen = ({ navigation }: any) => {
     }
   };
 
-  const handleQuickFill = (userType: 'patient' | 'professional') => {
+  const handleQuickFill = (userType: 'patient' | 'professional' | 'admin') => {
     if (userType === 'patient') {
       setEmail('luis@gmail.com');
       setPassword('123456');
-    } else {
+    } else if (userType === 'professional') {
       setEmail('carlos@gmail.com');
+      setPassword('123456');
+    } else {
+      setEmail('admin@gmail.com');
       setPassword('123456');
     }
   };
@@ -128,6 +131,12 @@ export const LoginScreen = ({ navigation }: any) => {
                 onPress={() => handleQuickFill('professional')}
               >
                 <Text style={styles.quickButtonText}>Profesional</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.quickButton}
+                onPress={() => handleQuickFill('admin')}
+              >
+                <Text style={styles.quickButtonText}>Admin</Text>
               </TouchableOpacity>
             </View>
           </View>

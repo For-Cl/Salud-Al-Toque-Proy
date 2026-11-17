@@ -2,6 +2,11 @@ import apiClient from '../api/client';
 import type { UserDTO } from '../types';
 
 export const userService = {
+  getAll: async (): Promise<UserDTO[]> => {
+    const response = await apiClient.get<UserDTO[]>('/users');
+    return response.data;
+  },
+
   getMe: async (): Promise<UserDTO> => {
     const response = await apiClient.get<UserDTO>('/users/me');
     return response.data;
@@ -10,6 +15,15 @@ export const userService = {
   updateMe: async (data: { name?: string; phone?: string }): Promise<UserDTO> => {
     const response = await apiClient.put<UserDTO>('/users/me', data);
     return response.data;
+  },
+
+  create: async (data: Omit<UserDTO, 'id'> & { password?: string }): Promise<UserDTO> => {
+    const response = await apiClient.post<UserDTO>('/users', data);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/users/${id}`);
   },
 
   changePassword: async (data: { currentPassword: string; newPassword: string }): Promise<{ message: string }> => {

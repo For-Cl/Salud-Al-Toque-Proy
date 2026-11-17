@@ -7,6 +7,7 @@ import { LoginScreen } from '../screens/auth/LoginScreen';
 import { RegisterScreen } from '../screens/auth/RegisterScreen';
 import { EmergencySensorScreen } from '../screens/patient/EmergencySensorScreen';
 import { ProfessionalDetailScreen } from '../screens/patient/ProfessionalDetailScreen';
+import { AdminTabNavigator } from './AdminTabNavigator';
 import { PatientTabNavigator } from './PatientTabNavigator';
 import { ProfessionalTabNavigator } from './ProfessionalTabNavigator';
 
@@ -37,10 +38,55 @@ export const RootNavigator = () => {
               options={{ headerShown: true, title: 'Crear Cuenta', headerBackTitle: 'Atrás' }}
             />
           </Stack.Group>
-        ) : role === 'PROFESSIONAL' || role === 'ADMIN' ? (
-          // Professional / Staff Stack
+        ) : role === 'ADMIN' ? (
+          // Admin App Stack
+          <Stack.Group>
+            <Stack.Screen name="AdminMain" component={AdminTabNavigator} />
+            <Stack.Screen
+              name="ProfessionalDetail"
+              component={ProfessionalDetailScreen}
+              options={{
+                headerShown: true,
+                title: 'Detalle del Profesional',
+                headerTintColor: '#0d9488',
+                headerBackTitle: 'Volver',
+              }}
+            />
+            <Stack.Screen
+              name="EmergencySensor"
+              component={EmergencySensorScreen}
+              options={{
+                headerShown: true,
+                title: 'Sensores y Emergencias',
+                headerTintColor: '#0d9488',
+                headerBackTitle: 'Atrás',
+              }}
+            />
+          </Stack.Group>
+        ) : role === 'PROFESSIONAL' ? (
+          // Professional App Stack
           <Stack.Group>
             <Stack.Screen name="ProfessionalMain" component={ProfessionalTabNavigator} />
+            <Stack.Screen
+              name="ProfessionalDetail"
+              component={ProfessionalDetailScreen}
+              options={{
+                headerShown: true,
+                title: 'Detalle del Profesional',
+                headerTintColor: '#0d9488',
+                headerBackTitle: 'Volver',
+              }}
+            />
+            <Stack.Screen
+              name="EmergencySensor"
+              component={EmergencySensorScreen}
+              options={{
+                headerShown: true,
+                title: 'Sensores y Emergencias',
+                headerTintColor: '#0d9488',
+                headerBackTitle: 'Atrás',
+              }}
+            />
           </Stack.Group>
         ) : (
           // Patient App Stack
@@ -72,4 +118,3 @@ export const RootNavigator = () => {
     </NavigationContainer>
   );
 };
-

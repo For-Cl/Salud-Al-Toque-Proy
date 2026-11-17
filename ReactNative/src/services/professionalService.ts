@@ -31,5 +31,15 @@ export const professionalService = {
     const response = await apiClient.put<ProfessionalDTO>('/professionals/me', data);
     return response.data;
   },
+
+  createByAdmin: async (data: {
+    user: { id: number };
+    specialty: { id: number };
+    location: string;
+    rating?: number;
+  }): Promise<any> => {
+    const response = await apiClient.post('/professionals', data);
+    return response.data;
+  },
 };
 

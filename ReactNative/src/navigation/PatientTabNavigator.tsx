@@ -32,17 +32,17 @@ export const PatientTabNavigator = () => {
         },
         tabBarIcon: ({ color, size, focused }) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'home';
-          if (route.name === 'HomeTab') {
+          if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'ProfessionalsTab') {
+          } else if (route.name === 'Professionals') {
             iconName = focused ? 'search' : 'search-outline';
-          } else if (route.name === 'MyAppointmentsTab') {
+          } else if (route.name === 'MyAppointments') {
             iconName = focused ? 'calendar' : 'calendar-outline';
-          } else if (route.name === 'FavoritesTab') {
+          } else if (route.name === 'Favorites') {
             iconName = focused ? 'heart' : 'heart-outline';
-          } else if (route.name === 'EmergencyTab') {
+          } else if (route.name === 'EmergencySensor') {
             iconName = focused ? 'hardware-chip' : 'hardware-chip-outline';
-          } else if (route.name === 'ProfileTab') {
+          } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -50,36 +50,35 @@ export const PatientTabNavigator = () => {
       })}
     >
       <Tab.Screen
-        name="HomeTab"
+        name="Home"
         component={HomeScreen}
         options={{ title: 'Inicio', headerTitle: 'Salud al Toque' }}
       />
       <Tab.Screen
-        name="ProfessionalsTab"
+        name="Professionals"
         component={ProfessionalsScreen}
         options={{ title: 'Médicos', headerTitle: 'Buscar Especialistas' }}
       />
       <Tab.Screen
-        name="MyAppointmentsTab"
+        name="MyAppointments"
         component={MyAppointmentsScreen}
         options={{ title: 'Mis Citas', headerTitle: 'Mis Citas Médicas' }}
       />
       <Tab.Screen
-        name="FavoritesTab"
+        name="Favorites"
         component={FavoritesScreen}
         options={{ title: 'Favoritos', headerTitle: 'Médicos Favoritos' }}
       />
       <Tab.Screen
-        name="EmergencyTab"
+        name="EmergencySensor"
         component={EmergencySensorScreen}
         options={{ title: 'Sensores', headerTitle: 'Sensores de Salud' }}
       />
       <Tab.Screen
-        name="ProfileTab"
+        name="Profile"
         component={ProfileScreen}
         options={{ title: 'Mi Perfil', headerTitle: 'Mi Perfil' }}
       />
     </Tab.Navigator>
   );
 };
-

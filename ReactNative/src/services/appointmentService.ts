@@ -2,6 +2,11 @@ import apiClient from '../api/client';
 import type { AppointmentDTO, CreateAppointmentRequest } from '../types';
 
 export const appointmentService = {
+  getAll: async (): Promise<AppointmentDTO[]> => {
+    const response = await apiClient.get<AppointmentDTO[]>('/appointments');
+    return response.data;
+  },
+
   getMyAppointments: async (): Promise<AppointmentDTO[]> => {
     const response = await apiClient.get<AppointmentDTO[]>('/appointments/my-appointments');
     return response.data;

@@ -28,7 +28,7 @@ import { reviewService } from '../../services/reviewService';
 export const ProfessionalDetailScreen = ({ route, navigation }: any) => {
   const { id } = route.params;
   const profId = Number(id);
-  const { user } = useAuth();
+  const { user, role } = useAuth();
 
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
   const [appointmentDate, setAppointmentDate] = useState('');
@@ -45,11 +45,18 @@ export const ProfessionalDetailScreen = ({ route, navigation }: any) => {
   const { data: services } = useFetch(() => medicalServiceService.getByProfessional(profId), [profId]);
   const { data: availabilities } = useFetch(() => availabilityService.getByProfessional(profId), [profId]);
   const { data: reviews } = useFetch(() => reviewService.getByProfessional(profId), [profId]);
-  const { data: favorites, refetch: refetchFavs } = useFetch(() => favoriteService.getMyFavorites());
+  const { data: favorites, refetch: refetchFavs } = useFetch(
+    () => (role === 'PATIENT' ? favoriteService.getMyFavorites() : Promise.resolve([])),
+    [profId, role]
+  );
 
   const isFav = favorites?.some((f) => f.professionalId === profId);
 
   const handleToggleFavorite = async () => {
+    if (role !== 'PATIENT') {
+      Alert.alert('Solo Pacientes', 'Solo los pacientes pueden guardar médicos en favoritos.');
+      return;
+    }
     try {
       const existing = favorites?.find((f) => f.professionalId === profId);
       if (existing) {
@@ -64,6 +71,10 @@ export const ProfessionalDetailScreen = ({ route, navigation }: any) => {
   };
 
   const handleBookAppointment = async () => {
+    if (role !== 'PATIENT') {
+      Alert.alert('Solo Pacientes', 'Solo los pacientes pueden reservar citas médicas.');
+      return;
+    }
     if (!selectedServiceId) {
       Alert.alert('Selecciona un servicio', 'Por favor elige un servicio médico antes de reservar.');
       return;

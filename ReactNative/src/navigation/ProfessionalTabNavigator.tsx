@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
+import { EmergencySensorScreen } from '../screens/patient/EmergencySensorScreen';
 import { ProfessionalAppointmentsScreen } from '../screens/professional/ProfessionalAppointmentsScreen';
 import { ProfessionalDashboardScreen } from '../screens/professional/ProfessionalDashboardScreen';
 import { ProfessionalScheduleScreen } from '../screens/professional/ProfessionalScheduleScreen';
@@ -26,20 +27,22 @@ export const ProfessionalTabNavigator = () => {
           paddingTop: 6,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '600',
         },
         tabBarIcon: ({ color, size, focused }) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'medkit';
-          if (route.name === 'DoctorDashboardTab') {
+          if (route.name === 'ProfessionalDashboard') {
             iconName = focused ? 'grid' : 'grid-outline';
-          } else if (route.name === 'DoctorAppointmentsTab') {
+          } else if (route.name === 'ProfessionalAppointments') {
             iconName = focused ? 'calendar' : 'calendar-outline';
-          } else if (route.name === 'DoctorScheduleTab') {
+          } else if (route.name === 'ProfessionalSchedule') {
             iconName = focused ? 'time' : 'time-outline';
-          } else if (route.name === 'DoctorServicesTab') {
+          } else if (route.name === 'ProfessionalServices') {
             iconName = focused ? 'medkit' : 'medkit-outline';
-          } else if (route.name === 'DoctorProfileTab') {
+          } else if (route.name === 'EmergencySensor') {
+            iconName = focused ? 'hardware-chip' : 'hardware-chip-outline';
+          } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -47,31 +50,35 @@ export const ProfessionalTabNavigator = () => {
       })}
     >
       <Tab.Screen
-        name="DoctorDashboardTab"
+        name="ProfessionalDashboard"
         component={ProfessionalDashboardScreen}
         options={{ title: 'Panel', headerTitle: 'Panel Profesional' }}
       />
       <Tab.Screen
-        name="DoctorAppointmentsTab"
+        name="ProfessionalAppointments"
         component={ProfessionalAppointmentsScreen}
         options={{ title: 'Citas', headerTitle: 'Citas de Pacientes' }}
       />
       <Tab.Screen
-        name="DoctorScheduleTab"
+        name="ProfessionalSchedule"
         component={ProfessionalScheduleScreen}
         options={{ title: 'Horarios', headerTitle: 'Mis Horarios de Atención' }}
       />
       <Tab.Screen
-        name="DoctorServicesTab"
+        name="ProfessionalServices"
         component={ProfessionalServicesScreen}
         options={{ title: 'Servicios', headerTitle: 'Mis Servicios Médicos' }}
       />
       <Tab.Screen
-        name="DoctorProfileTab"
+        name="EmergencySensor"
+        component={EmergencySensorScreen}
+        options={{ title: 'Sensores', headerTitle: 'Sensores de Salud' }}
+      />
+      <Tab.Screen
+        name="Profile"
         component={ProfileScreen}
         options={{ title: 'Perfil', headerTitle: 'Mi Perfil' }}
       />
     </Tab.Navigator>
   );
 };
-

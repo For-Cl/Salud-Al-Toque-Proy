@@ -14,6 +14,7 @@ import { EmptyStateView } from '../../components/EmptyStateView';
 import { ErrorView } from '../../components/ErrorView';
 import { LoadingView } from '../../components/LoadingView';
 import { ProfessionalCard } from '../../components/ProfessionalCard';
+import { useAuth } from '../../contexts/AuthContext';
 import { useFetch } from '../../hooks/useFetch';
 import { useLocation } from '../../hooks/useLocation';
 import { favoriteService } from '../../services/favoriteService';
@@ -26,6 +27,7 @@ export const ProfessionalsScreen = ({ navigation }: any) => {
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
   const [sortBy, setSortBy] = useState<'distance' | 'rating'>('distance');
   const { coords } = useLocation();
+  const { role } = useAuth();
 
   const {
     data: professionals,
@@ -35,11 +37,15 @@ export const ProfessionalsScreen = ({ navigation }: any) => {
   } = useFetch(() => professionalService.getAll());
 
   const { data: specialties } = useFetch(() => specialtyService.getAll());
-  const { data: favorites, refetch: refetchFavs } = useFetch(() => favoriteService.getMyFavorites());
+  const { data: favorites, refetch: refetchFavs } = useFetch(
+    () => (role === 'PATIENT' ? favoriteService.getMyFavorites() : Promise.resolve([])),
+    [role]
+  );
 
   const isFav = (id: number) => favorites?.some((f) => f.professionalId === id);
 
   const handleToggleFavorite = async (profId: number) => {
+    if (role !== 'PATIENT') return;
     try {
       const existing = favorites?.find((f) => f.professionalId === profId);
       if (existing) {
