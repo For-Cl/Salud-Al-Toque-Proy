@@ -5,6 +5,13 @@
 **Curso:** CS 2031 — Desarrollo Basado en Plataformas (DBP), UTEC  
 **Tecnologías:** React 19 · TypeScript · Tailwind CSS v4 · React Native (Expo SDK 58) · Java 17 · Spring Boot 3 · PostgreSQL
 
+## Integrantes y coevaluación
+
+| Integrante | Coevaluación |
+|---|---:|
+| Fabricio Alberto Olaguibel Romero | 100% |
+| John Dayron Blas Huete | 100% |
+
 ---
 
 ## Arquitectura del Sistema
@@ -99,10 +106,3 @@ npx expo start
 | Administrador | admin@gmail.com | 123456 |
 | Profesional | carlos@gmail.com | 123456 |
 | Paciente | luis@gmail.com | 123456 |
-
----
-
-## Integrantes
-
-- Fabricio Alberto Olaguibel Romero
-- John Dayron Blas Huete
