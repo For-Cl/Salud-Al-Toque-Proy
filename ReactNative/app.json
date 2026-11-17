@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ReactNative",
-    "slug": "ReactNative",
+    "slug": "sea1",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,13 +16,26 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.sea1steam.sea1"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "fe009312-4c78-48d5-b3fd-ae1a16a5b46f"
+      }
+    },
+    "owner": "sea1s-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/fe009312-4c78-48d5-b3fd-ae1a16a5b46f"
+    }
   }
 }

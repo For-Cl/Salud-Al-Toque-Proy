@@ -19,6 +19,13 @@
 
 > **¿Por qué HTTPS?** Un frontend en Vercel (HTTPS) no puede llamar a un backend HTTP. El navegador bloquea la petición por *mixed content*. El backend necesita un dominio con certificado.
 
+Desplegado en Vercel:
+https://salud-al-toque-proy.vercel.app
+
+Desplegado con eas.
+Build para android:
+https://expo.dev/accounts/sea1s-team/projects/sea1/builds/5f9bcca7-fa9d-43a0-b3ac-0101c99eddd6
+
 ---
 
 ## URLs en Producción
@@ -121,12 +128,16 @@ DB_NAME=saludaltoquedatabase
 DB_USER=postgres
 DB_PASSWORD=<PASSWORD_RDS>
 DDL_AUTO=update
+SQL_INIT_MODE=never
 JWT_SECRET=<GENERA_UNO_NUEVO>
 JWT_EXPIRATION=3600000
 NOTIFICATION_EMAIL_ENABLED=false
-.
-.
-.
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tu_correo@gmail.com
+MAIL_PASSWORD=tu_app_password
+MAIL_SMTP_AUTH=true
+MAIL_SMTP_STARTTLS=true
 ```
 
 3. **Domains → Add Domain:**

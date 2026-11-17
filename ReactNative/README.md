@@ -2,6 +2,10 @@
 
 Aplicación móvil desarrollada con **React Native**, **Expo SDK 58** y **TypeScript**.
 
+Desplegado con eas.
+Build para android:
+https://expo.dev/accounts/sea1s-team/projects/sea1/builds/5f9bcca7-fa9d-43a0-b3ac-0101c99eddd6
+
 ---
 
 ## Tecnologías
